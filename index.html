@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password — ScanTag</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1A1A24; color: #EBEBF2; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #28283A; border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 420px; }
+  .logo { font-size: 28px; font-weight: 700; color: #4085F5; text-align: center; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: #8C8C9E; text-align: center; margin-bottom: 28px; }
+  label { display: block; font-size: 13px; color: #8C8C9E; margin-bottom: 6px; margin-top: 16px; }
+  input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #3A3A52; background: white; color: black; font-size: 16px; outline: none; }
+  input:focus { border-color: #4085F5; }
+  button { width: 100%; padding: 16px; border-radius: 12px; border: none; background: #4085F5; color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 24px; }
+  button:hover { background: #2d6fe0; }
+  button:disabled { background: #666680; cursor: not-allowed; }
+  .msg { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 14px; text-align: center; display: none; }
+  .msg.success { background: #33B87330; color: #33B873; display: block; }
+  .msg.error { background: #E04D4D30; color: #E04D4D; display: block; }
+  .pw-wrap { position: relative; }
+  .toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #8C8C9E; cursor: pointer; font-size: 13px; width: auto; margin: 0; padding: 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">ScanTag</div>
+  <div class="subtitle" id="pageSubtitle">Set your new password</div>
+  <div id="formArea">
+    <label for="pw">New Password</label>
+    <div class="pw-wrap">
+      <input type="password" id="pw" placeholder="Min 6 characters" autocomplete="new-password"/>
+      <button class="toggle" type="button" onclick="togglePw('pw','togglePw1')" id="togglePw1">Show</button>
+    </div>
+    <label for="pw2">Confirm Password</label>
+    <div class="pw-wrap">
+      <input type="password" id="pw2" placeholder="Repeat password" autocomplete="new-password"/>
+      <button class="toggle" type="button" onclick="togglePw('pw2','togglePw2')" id="togglePw2">Show</button>
+    </div>
+    <button id="submitBtn" onclick="submitReset()">Set New Password</button>
+  </div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://bvpjexqsiptmwjfymlqv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2cGpleHFzaXB0bXdqZnltbHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTI5NjQsImV4cCI6MjA5NDcyODk2NH0.By4AY17YO1plNDk1GUR9uzT6n48Ht5drmoCtXnHYkHI';
+
+  function togglePw(inputId, btnId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; }
+    else { input.type = 'password'; btn.textContent = 'Show'; }
+  }
+
+  function showMsg(text, type) {
+    const el = document.getElementById('msg');
+    el.textContent = text; el.className = 'msg ' + type;
+  }
+
+  // Extract tokens from URL hash or query params
+  function getParams() {
+    const hash = window.location.hash.substring(1);
+    const query = window.location.search.substring(1);
+    const params = {};
+    (hash || query).split('&').forEach(p => { const [k,v] = p.split('='); if (k) params[k] = decodeURIComponent(v || ''); });
+    return params;
+  }
+
+  const params = getParams();
+  const accessToken = params['access_token'];
+  const refreshToken = params['refresh_token'];
+  const type = params['type'];
+  const errorDesc = params['error_description'];
+
+  // Show error if Supabase sent one
+  if (errorDesc) {
+    document.getElementById('pageSubtitle').textContent = 'Link issue';
+    document.getElementById('formArea').style.display = 'none';
+    showMsg(decodeURIComponent(errorDesc.replace(/\+/g,' ')), 'error');
+  }
+
+  // No token present
+  if (!accessToken && !errorDesc) {
+    document.getElementById('pageSubtitle').textContent = 'Invalid link';
+    document.getElementById('formArea').style.display = 'none';
+    showMsg('This reset link is invalid or has already been used. Request a new one from the ScanTag app.', 'error');
+  }
+
+  async function submitReset() {
+    const pw = document.getElementById('pw').value;
+    const pw2 = document.getElementById('pw2').value;
+    if (pw.length < 6) { showMsg('Password must be at least 6 characters.', 'error'); return; }
+    if (pw !== pw2) { showMsg('Passwords do not match.', 'error'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    try {
+      // Exchange token for session first
+      const sessionRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json',
+                   'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({ })
+      });
+
+      // Update password using the access token directly
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ password: pw })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('formArea').style.display = 'none';
+        showMsg('Password updated! You can now sign in to ScanTag with your new password.', 'success');
+      } else {
+        btn.disabled = false; btn.textContent = 'Set New Password';
+        showMsg(data.msg || data.error_description || 'Something went wrong. Try requesting a new reset link.', 'error');
+      }
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Set New Password';
+      showMsg('Network error. Check your connection and try again.', 'error');
+    }
+  }
+</script>
+</body>
+</html>
