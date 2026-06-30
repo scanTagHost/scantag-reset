@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.scantag.app",
-    "sha256_cert_fingerprints": ["YOUR_SHA256_FINGERPRINT_HERE"]
+    "sha256_cert_fingerprints": ["53:EB:4D:70:FD:E9:C7:AF:45:36:0B:73:A9:84:60:35:2D:A5:66:F4:7B:D3:0F:54:40:CC:49:CC:78:53:DB:1A"]
   }
 }]
