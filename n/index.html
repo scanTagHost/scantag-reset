@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScanTag</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; background: #3ABEB7; color: #0E2A28; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
+  .card { background: white; border-radius: 20px; padding: 32px 24px; max-width: 360px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  p { font-size: 15px; color: #235651; line-height: 1.5; }
+  a.btn { display: inline-block; margin-top: 20px; background: #4085F5; color: white; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 16px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>ScanTag</h1>
+    <p>This QR code links to an item in ScanTag. Install the app to view it.</p>
+    <a class="btn" id="playLink" href="https://play.google.com/store/apps/details?id=com.scantag.app">Get it on Google Play</a>
+  </div>
+<script>
+  // Attempt to open the app directly first (in case App Links didn't catch it for some reason)
+  var path = window.location.pathname;
+  var qr = path.split('/n/')[1];
+  if (qr) {
+    var intentUrl = "intent://scantag.info/n/" + qr + "#Intent;scheme=https;package=com.scantag.app;end";
+    window.location.href = intentUrl;
+  }
+</script>
+</body>
+</html>
