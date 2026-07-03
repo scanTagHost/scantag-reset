@@ -3,133 +3,758 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reset Password — ScanTag</title>
+<title>ScanTag — QR Code Inventory & Storage Organizer</title>
+<meta name="description" content="Turn any box, bin, or shelf into a searchable inventory. Create QR code labels, scan to find anything instantly. Free for Android — perfect for home storage, moving, and small business.">
+<meta property="og:title" content="ScanTag — QR Code Inventory Tracker">
+<meta property="og:description" content="Label anything with a QR code. Scan to find it instantly. Home storage, moving boxes, small business inventory.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://scantag.info">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://scantag.info">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400;1,9..40,700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1A1A24; color: #EBEBF2; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .card { background: #28283A; border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 420px; }
-  .logo { font-size: 28px; font-weight: 700; color: #4085F5; text-align: center; margin-bottom: 6px; }
-  .subtitle { font-size: 15px; color: #8C8C9E; text-align: center; margin-bottom: 28px; }
-  label { display: block; font-size: 13px; color: #8C8C9E; margin-bottom: 6px; margin-top: 16px; }
-  input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #3A3A52; background: white; color: black; font-size: 16px; outline: none; }
-  input:focus { border-color: #4085F5; }
-  button { width: 100%; padding: 16px; border-radius: 12px; border: none; background: #4085F5; color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 24px; }
-  button:hover { background: #2d6fe0; }
-  button:disabled { background: #666680; cursor: not-allowed; }
-  .msg { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 14px; text-align: center; display: none; }
-  .msg.success { background: #33B87330; color: #33B873; display: block; }
-  .msg.error { background: #E04D4D30; color: #E04D4D; display: block; }
-  .pw-wrap { position: relative; }
-  .toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #8C8C9E; cursor: pointer; font-size: 13px; width: auto; margin: 0; padding: 4px; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0A1F1E;
+    --bg2:       #0E2A28;
+    --card:      #132E2C;
+    --teal:      #3ABEB7;
+    --teal-dim:  #2A9490;
+    --coral:     #E8836B;
+    --white:     #F0F7F6;
+    --dim:       #7AABA7;
+    --border:    rgba(58,190,183,0.15);
+    --font-head: 'DM Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(10,31,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-head);
+    font-size: 22px; font-weight: 700;
+    color: var(--teal); letter-spacing: -0.5px;
+    text-decoration: none;
+  }
+  .nav-cta {
+    background: var(--teal); color: #0A1F1E;
+    font-family: var(--font-head); font-weight: 700; font-size: 14px;
+    padding: 10px 20px; border-radius: 8px; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: #4DD4CD; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(58,190,183,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(58,190,183,0.1); border: 1px solid var(--border);
+    border-radius: 100px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--teal);
+    margin-bottom: 24px; letter-spacing: 0.3px;
+  }
+  .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); display: inline-block; }
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(38px, 7vw, 76px);
+    font-weight: 700; line-height: 1.05;
+    letter-spacing: -2px; color: var(--white);
+    max-width: 820px; margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: normal; color: var(--teal); }
+  .hero-sub {
+    font-size: clamp(16px, 2.2vw, 20px);
+    color: var(--dim); max-width: 560px;
+    line-height: 1.6; margin-bottom: 40px;
+  }
+  .hero-actions {
+    display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 64px;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--teal); color: #0A1F1E;
+    font-family: var(--font-head); font-weight: 700; font-size: 16px;
+    padding: 16px 28px; border-radius: 12px; text-decoration: none;
+    transition: transform 0.15s, background 0.2s;
+    box-shadow: 0 4px 20px rgba(58,190,183,0.3);
+  }
+  .btn-primary:hover { background: #4DD4CD; transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent; color: var(--white);
+    font-family: var(--font-head); font-weight: 500; font-size: 16px;
+    padding: 16px 28px; border-radius: 12px; text-decoration: none;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--teal); background: rgba(58,190,183,0.06); }
+
+  /* Phone mockup — matches real app UI (teal light theme) */
+  .phone-mockup {
+    position: relative; width: 270px; margin: 0 auto;
+  }
+  .phone-shell {
+    background: #1A3533;
+    border: 2px solid rgba(58,190,183,0.25);
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(58,190,183,0.08);
+    position: relative;
+  }
+  .phone-screen {
+    background: #3ABEB7; border-radius: 28px;
+    padding: 16px 14px; min-height: 420px;
+    overflow: hidden;
+  }
+  .mock-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .mock-hamburger { display: flex; flex-direction: column; gap: 3px; }
+  .mock-hamburger span { width: 18px; height: 2px; background: #0E2A28; border-radius: 2px; }
+  .mock-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: #0E2A28; letter-spacing: -0.5px; }
+  .mock-help {
+    margin-left: auto; width: 26px; height: 26px; border-radius: 50%;
+    background: #FFC107; color: #0E2A28; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mock-badge-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .mock-badge { background: rgba(51,184,115,0.25); color: #1a6b3f; font-size: 9px; font-weight: 700; padding: 4px 10px; border-radius: 5px; }
+  .mock-hr { height: 2px; background: #E8836B; border-radius: 2px; margin-bottom: 12px; opacity: 0.85; }
+  .mock-btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .mock-btn { flex: 1; border-radius: 10px; padding: 12px; text-align: center; font-size: 12px; font-weight: 600; color: white; }
+  .mock-btn.green { background: #33B873; }
+  .mock-btn.blue { background: #4085F5; }
+  .mock-btn.teal-wide { background: #338CA6; border-radius: 10px; padding: 12px; text-align: center; font-size: 12px; font-weight: 600; color: white; margin-bottom: 10px; }
+  .mock-search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .mock-search {
+    flex: 1; background: white; border-radius: 10px;
+    padding: 10px 14px; font-size: 12px; color: #999;
+  }
+  .mock-sort { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+  .mock-sort span { height: 2px; background: #0E2A28; border-radius: 2px; }
+  .mock-sort span:nth-child(1) { width: 16px; }
+  .mock-sort span:nth-child(2) { width: 11px; }
+  .mock-sort span:nth-child(3) { width: 7px; }
+  .mock-status { font-size: 11px; color: #0E2A28; margin-bottom: 10px; opacity: 0.75; }
+  .mock-item {
+    background: white; border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 7px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mock-check {
+    width: 18px; height: 18px; border-radius: 4px;
+    border: 2px solid #666680; flex-shrink: 0;
+  }
+  .mock-item-name { font-size: 14px; font-weight: 500; color: #0E2A28; }
+
+  /* Floating QR */
+  .float-qr {
+    position: absolute;
+    width: 64px; height: 64px;
+    background: white; border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: float 4s ease-in-out infinite;
+  }
+  .float-qr svg { width: 100%; height: 100%; }
+  .float-qr-1 { top: 40px; right: -28px; animation-delay: 0s; }
+  .float-qr-2 { bottom: 60px; left: -32px; animation-delay: 2s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 96px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-head);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700; letter-spacing: -1px;
+    color: var(--white); margin-bottom: 16px; line-height: 1.1;
+  }
+  .section-sub {
+    color: var(--dim); font-size: 17px;
+    max-width: 560px; line-height: 1.6; margin-bottom: 56px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+  }
+  .step {
+    background: var(--card);
+    padding: 32px 28px; position: relative;
+  }
+  .step:first-child { border-radius: 16px 0 0 16px; }
+  .step:last-child { border-radius: 0 16px 16px 0; }
+  .step-num {
+    font-family: var(--font-head); font-size: 48px; font-weight: 700;
+    color: rgba(58,190,183,0.12); line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step-icon {
+    font-size: 28px; margin-bottom: 12px; display: block;
+  }
+  .step h3 {
+    font-family: var(--font-head); font-size: 18px; font-weight: 700;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .step p { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+  /* ── USE CASES ── */
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .use-case {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .use-case:hover { border-color: rgba(58,190,183,0.35); transform: translateY(-2px); }
+  .use-case-icon { font-size: 32px; margin-bottom: 14px; display: block; }
+  .use-case h3 {
+    font-family: var(--font-head); font-size: 18px; font-weight: 700;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .use-case p { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+  /* ── FEATURES ── */
+  .features-bg {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .feature {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .feature-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--teal); flex-shrink: 0; margin-top: 7px;
+  }
+  .feature h4 {
+    font-family: var(--font-head); font-size: 15px; font-weight: 700;
+    color: var(--white); margin-bottom: 4px;
+  }
+  .feature p { font-size: 13px; color: var(--dim); line-height: 1.5; }
+
+  /* ── PLANS ── */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px; align-items: start;
+  }
+  .plan {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px 28px;
+    position: relative;
+  }
+  .plan.featured {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 1px var(--teal), 0 16px 40px rgba(58,190,183,0.15);
+  }
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--teal); color: #0A1F1E;
+    font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 100px;
+    white-space: nowrap;
+  }
+  .plan-name {
+    font-family: var(--font-head); font-size: 22px; font-weight: 700;
+    color: var(--white); margin-bottom: 4px;
+  }
+  .plan-price {
+    font-family: var(--font-head); font-size: 32px; font-weight: 700;
+    color: var(--teal); margin-bottom: 4px; line-height: 1;
+  }
+  .plan-price span { font-size: 15px; font-weight: 400; color: var(--dim); }
+  .plan-desc { font-size: 13px; color: var(--dim); margin-bottom: 20px; }
+  .plan-features { list-style: none; }
+  .plan-features li {
+    font-size: 14px; color: var(--dim);
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-features li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── PRIVACY STRIP ── */
+  .privacy-strip {
+    background: rgba(58,190,183,0.06);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .privacy-pills {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    margin-top: 16px;
+  }
+  .privacy-pill {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 100px; padding: 8px 18px;
+    font-size: 13px; font-weight: 500; color: var(--dim);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .privacy-pill::before { content: '🔒'; font-size: 12px; }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center; padding: 96px 24px;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(58,190,183,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-section h2 {
+    font-family: var(--font-head);
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700; letter-spacing: -1.5px;
+    color: var(--white); margin-bottom: 16px; line-height: 1.1;
+  }
+  .cta-section p {
+    color: var(--dim); font-size: 17px; margin-bottom: 36px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    display: flex; flex-wrap: wrap; gap: 16px;
+    align-items: center; justify-content: space-between;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .footer-logo {
+    font-family: var(--font-head); font-size: 18px; font-weight: 700;
+    color: var(--teal); text-decoration: none;
+  }
+  .footer-links {
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .footer-links a {
+    font-size: 13px; color: var(--dim); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-copy { font-size: 12px; color: var(--dim); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--border);
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav { padding: 14px 20px; }
+    .step:first-child, .step:last-child { border-radius: 0; }
+    .step:first-child { border-radius: 16px 16px 0 0; }
+    .step:last-child { border-radius: 0 0 16px 16px; }
+    .hero-actions { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; max-width: 300px; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .float-qr { animation: none; }
+    * { transition: none !important; }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">ScanTag</div>
-  <div class="subtitle" id="pageSubtitle">Set your new password</div>
-  <div id="formArea">
-    <label for="pw">New Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="pw" placeholder="Min 6 characters" autocomplete="new-password"/>
-      <button class="toggle" type="button" onclick="togglePw('pw','togglePw1')" id="togglePw1">Show</button>
-    </div>
-    <label for="pw2">Confirm Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="pw2" placeholder="Repeat password" autocomplete="new-password"/>
-      <button class="toggle" type="button" onclick="togglePw('pw2','togglePw2')" id="togglePw2">Show</button>
-    </div>
-    <button id="submitBtn" onclick="submitReset()">Set New Password</button>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">ScanTag</a>
+  <a class="nav-cta" href="https://play.google.com/store/apps/details?id=com.scantag.app" target="_blank" rel="noopener">Download Free</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow"><span></span> Free on Android</div>
+  <h1>Find anything in storage.<br><em>Instantly.</em></h1>
+  <p class="hero-sub">Stick a QR code on any box, bin, or shelf. Scan to see what's inside. Never dig through storage guessing again.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.scantag.app" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.33.18.7.19 1.05.03l12.2-7.04-2.63-2.63-10.62 9.64zm-1.31-20.3C1.66 3.77 1.5 4.12 1.5 4.56v14.88c0 .44.16.79.37 1.1l.07.06 8.34-8.34v-.2L1.87 3.4l-.07.06zM20.1 10.5l-2.4-1.39-2.95 2.95 2.95 2.95 2.42-1.39c.69-.4.69-1.72-.02-2.12zM4.23.24L16.43 7.28 13.8 9.91 3.18.27C3.54.1 3.9.11 4.23.24z"/></svg>
+      Get it on Google Play
+    </a>
+    <a class="btn-secondary" href="#how-it-works">See how it works</a>
   </div>
-  <div class="msg" id="msg"></div>
+
+  <!-- Phone mockup -->
+  <div class="phone-mockup">
+    <div class="phone-shell">
+      <div class="phone-screen">
+        <div class="mock-header">
+          <div class="mock-hamburger"><span></span><span></span><span></span></div>
+          <span class="mock-title">ScanTag</span>
+          <div class="mock-help">?</div>
+        </div>
+        <div class="mock-badge-row"><span class="mock-badge">BASIC</span></div>
+        <div class="mock-hr"></div>
+        <div class="mock-btn-row">
+          <div class="mock-btn green">+ New Note</div>
+          <div class="mock-btn blue">Scan QR</div>
+        </div>
+        <div class="mock-btn teal-wide">Download</div>
+        <div class="mock-search-row">
+          <div class="mock-search">Search...</div>
+          <div class="mock-sort"><span></span><span></span><span></span></div>
+        </div>
+        <div class="mock-status">Connected — 26 items</div>
+        <div class="mock-item"><div class="mock-check"></div><span class="mock-item-name">storage unit</span></div>
+        <div class="mock-item"><div class="mock-check"></div><span class="mock-item-name">Laundry Room</span></div>
+        <div class="mock-item"><div class="mock-check"></div><span class="mock-item-name">bin 24</span></div>
+        <div class="mock-item"><div class="mock-check"></div><span class="mock-item-name">bin 23</span></div>
+      </div>
+    </div>
+    <!-- Floating QR codes -->
+    <div class="float-qr float-qr-1">
+      <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="9" height="9" fill="#0A1F1E"/>
+        <rect x="1" y="1" width="7" height="7" fill="white"/>
+        <rect x="2" y="2" width="5" height="5" fill="#0A1F1E"/>
+        <rect x="12" y="0" width="9" height="9" fill="#0A1F1E"/>
+        <rect x="13" y="1" width="7" height="7" fill="white"/>
+        <rect x="14" y="2" width="5" height="5" fill="#0A1F1E"/>
+        <rect x="0" y="12" width="9" height="9" fill="#0A1F1E"/>
+        <rect x="1" y="13" width="7" height="7" fill="white"/>
+        <rect x="2" y="14" width="5" height="5" fill="#0A1F1E"/>
+        <rect x="12" y="12" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="16" y="12" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="12" y="16" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="16" y="16" width="3" height="3" fill="#0A1F1E"/>
+      </svg>
+    </div>
+    <div class="float-qr float-qr-2">
+      <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="9" height="9" fill="#0A1F1E"/>
+        <rect x="1" y="1" width="7" height="7" fill="white"/>
+        <rect x="2" y="2" width="5" height="5" fill="#3ABEB7"/>
+        <rect x="12" y="0" width="9" height="9" fill="#0A1F1E"/>
+        <rect x="13" y="1" width="7" height="7" fill="white"/>
+        <rect x="14" y="2" width="5" height="5" fill="#3ABEB7"/>
+        <rect x="0" y="12" width="9" height="9" fill="#0A1F1E"/>
+        <rect x="1" y="13" width="7" height="7" fill="white"/>
+        <rect x="2" y="14" width="5" height="5" fill="#3ABEB7"/>
+        <rect x="12" y="12" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="16" y="12" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="12" y="16" width="3" height="3" fill="#0A1F1E"/>
+        <rect x="16" y="16" width="3" height="3" fill="#0A1F1E"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="section">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">Three steps. Zero guessing.</h2>
+  <p class="section-sub">No complicated setup. Just create, print, and scan — done in under a minute per item.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <span class="step-icon">📝</span>
+      <h3>Create an item</h3>
+      <p>Give it a title and description. Add tags to categorize. ScanTag generates a unique QR code automatically.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <span class="step-icon">🖨️</span>
+      <h3>Print & attach</h3>
+      <p>Print your QR codes individually or in bulk. Stick them on boxes, bins, shelves, or equipment. Done.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <span class="step-icon">📱</span>
+      <h3>Scan to find</h3>
+      <p>Point your phone at any label. Instantly see everything inside — no digging, no guessing, no opening the wrong box.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <span class="step-icon">🔍</span>
+      <h3>Search everything</h3>
+      <p>Can't find the label? Search your full inventory by title, description, or tag from any device, anytime.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- USE CASES -->
+<section class="section">
+  <div class="section-label">Use cases</div>
+  <h2 class="section-title">If it fits in a container,<br>ScanTag can track it.</h2>
+  <p class="section-sub">Built for real people with real storage problems — at home, on the move, or running a business.</p>
+  <div class="use-cases-grid">
+    <div class="use-case">
+      <span class="use-case-icon">📦</span>
+      <h3>Home Storage</h3>
+      <p>Garages, attics, closets, and storage units. Know what's in every bin without opening a single one.</p>
+    </div>
+    <div class="use-case">
+      <span class="use-case-icon">🚚</span>
+      <h3>Moving Boxes</h3>
+      <p>Label every box before the move. Find exactly what you need on moving day — or three months later.</p>
+    </div>
+    <div class="use-case">
+      <span class="use-case-icon">🔧</span>
+      <h3>Workshop & Tools</h3>
+      <p>Track tools across multiple shelves, cabinets, and job sites. Know what you have and where it is.</p>
+    </div>
+    <div class="use-case">
+      <span class="use-case-icon">🏪</span>
+      <h3>Small Business</h3>
+      <p>Stock rooms, supply closets, and equipment inventory. Simple enough for one person, powerful enough for a team.</p>
+    </div>
+    <div class="use-case">
+      <span class="use-case-icon">🎨</span>
+      <h3>Hobby & Craft</h3>
+      <p>Fabric, supplies, components, and materials. Organize by project, material type, or whatever works for you.</p>
+    </div>
+    <div class="use-case">
+      <span class="use-case-icon">🍽️</span>
+      <h3>Kitchen & Pantry</h3>
+      <p>Chest freezers, pantry shelves, and bulk storage. Stop buying things you already have.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="features-bg">
+  <section class="section">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+    <p class="section-sub">Built for simplicity — powerful enough for a serious inventory.</p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>QR code scanning</h4>
+          <p>Fast, reliable scanning with your phone camera. Works offline once items are cached.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Rich text descriptions</h4>
+          <p>Bold, italic, bullet lists, and numbered lists. Describe exactly what's inside.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Itemized notes</h4>
+          <p>Track individual items with quantities, SKUs, and units of measure per line.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Full-text search</h4>
+          <p>Search titles, descriptions, and tags across your entire inventory instantly.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Bulk QR printing</h4>
+          <p>Print a sheet of all your QR codes at once, ready to cut and attach.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Deep link QR codes</h4>
+          <p>Scan any QR label with your default camera app and it opens directly in ScanTag.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Cloud sync</h4>
+          <p>Your inventory is backed up and accessible from any device, anytime.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Dark & light mode</h4>
+          <p>Adjustable font size and haptic feedback — all saved between sessions.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Inventory sharing</h4>
+          <p>Share your full inventory with colleagues or family. View-only access, revoke anytime. <em style="color:var(--teal)">Pro</em></p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>Tags & filtering</h4>
+          <p>Add up to 4 tags per item. Filter and browse by category. <em style="color:var(--teal)">Pro</em></p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>3D-printable STL export</h4>
+          <p>Export QR codes as STL files for permanent, durable 3D-printed labels. <em style="color:var(--teal)">Pro</em></p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div>
+          <h4>CSV export</h4>
+          <p>Export your full inventory as a spreadsheet for backups or other tools. <em style="color:var(--teal)">Pro</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
-<script>
-  const SUPABASE_URL = 'https://bvpjexqsiptmwjfymlqv.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2cGpleHFzaXB0bXdqZnltbHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTI5NjQsImV4cCI6MjA5NDcyODk2NH0.By4AY17YO1plNDk1GUR9uzT6n48Ht5drmoCtXnHYkHI';
+<!-- PRIVACY STRIP -->
+<div class="privacy-strip">
+  <p style="font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 8px;">No ads. No tracking. No data selling.</p>
+  <p style="color: var(--dim); font-size: 14px;">We collect only your email for authentication and the item data you create.</p>
+  <div class="privacy-pills">
+    <div class="privacy-pill">No advertising</div>
+    <div class="privacy-pill">No data selling</div>
+    <div class="privacy-pill">No tracking</div>
+    <div class="privacy-pill">Encrypted in transit</div>
+    <div class="privacy-pill">Delete anytime</div>
+  </div>
+</div>
 
-  function togglePw(inputId, btnId) {
-    const input = document.getElementById(inputId);
-    const btn = document.getElementById(btnId);
-    if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; }
-    else { input.type = 'password'; btn.textContent = 'Show'; }
-  }
+<!-- PLANS -->
+<section class="section">
+  <div class="section-label">Plans</div>
+  <h2 class="section-title">Start free. Upgrade when you're ready.</h2>
+  <p class="section-sub">Every plan includes QR scanning, search, and cloud sync. No ads on any plan.</p>
+  <div class="plans-grid">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0 <span>forever</span></div>
+      <div class="plan-desc">Perfect for getting started.</div>
+      <ul class="plan-features">
+        <li>Up to 10 items</li>
+        <li>QR code scanning</li>
+        <li>Full-text search</li>
+        <li>QR image download</li>
+        <li>Cloud sync</li>
+        <li>1 device</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price">$1.99 <span>/ month</span></div>
+      <div class="plan-desc">For serious home organizers.</div>
+      <ul class="plan-features">
+        <li>Up to 75 items</li>
+        <li>2 devices</li>
+        <li>Everything in Free</li>
+      </ul>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$4.99 <span>/ month</span></div>
+      <div class="plan-desc">For businesses and power users.</div>
+      <ul class="plan-features">
+        <li>Up to 200 items</li>
+        <li>Tags — up to 4 per item</li>
+        <li>Inventory sharing</li>
+        <li>3D STL export</li>
+        <li>CSV export</li>
+        <li>Unlimited devices</li>
+        <li>Everything in Basic</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-  function showMsg(text, type) {
-    const el = document.getElementById('msg');
-    el.textContent = text; el.className = 'msg ' + type;
-  }
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Stop guessing.<br>Start scanning.</h2>
+  <p>Free to download. No credit card required.</p>
+  <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.scantag.app" target="_blank" rel="noopener" style="display:inline-flex; margin: 0 auto;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.33.18.7.19 1.05.03l12.2-7.04-2.63-2.63-10.62 9.64zm-1.31-20.3C1.66 3.77 1.5 4.12 1.5 4.56v14.88c0 .44.16.79.37 1.1l.07.06 8.34-8.34v-.2L1.87 3.4l-.07.06zM20.1 10.5l-2.4-1.39-2.95 2.95 2.95 2.95 2.42-1.39c.69-.4.69-1.72-.02-2.12zM4.23.24L16.43 7.28 13.8 9.91 3.18.27C3.54.1 3.9.11 4.23.24z"/></svg>
+    Get ScanTag Free
+  </a>
+</div>
 
-  // Extract tokens from URL hash or query params
-  function getParams() {
-    const hash = window.location.hash.substring(1);
-    const query = window.location.search.substring(1);
-    const params = {};
-    (hash || query).split('&').forEach(p => { const [k,v] = p.split('='); if (k) params[k] = decodeURIComponent(v || ''); });
-    return params;
-  }
+<!-- FOOTER -->
+<div class="divider"></div>
+<footer>
+  <a class="footer-logo" href="/">ScanTag</a>
+  <div class="footer-links">
+    <a href="/reset_password.html">Reset Password</a>
+    <a href="https://play.google.com/store/apps/details?id=com.scantag.app" target="_blank" rel="noopener">Google Play</a>
+    <a href="mailto:support@scantag.info">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 ScanTag. All rights reserved.</div>
+</footer>
 
-  const params = getParams();
-  const accessToken = params['access_token'];
-  const refreshToken = params['refresh_token'];
-  const type = params['type'];
-  const errorDesc = params['error_description'];
-
-  // Show error if Supabase sent one
-  if (errorDesc) {
-    document.getElementById('pageSubtitle').textContent = 'Link issue';
-    document.getElementById('formArea').style.display = 'none';
-    showMsg(decodeURIComponent(errorDesc.replace(/\+/g,' ')), 'error');
-  }
-
-  // No token present
-  if (!accessToken && !errorDesc) {
-    document.getElementById('pageSubtitle').textContent = 'Invalid link';
-    document.getElementById('formArea').style.display = 'none';
-    showMsg('This reset link is invalid or has already been used. Request a new one from the ScanTag app.', 'error');
-  }
-
-  async function submitReset() {
-    const pw = document.getElementById('pw').value;
-    const pw2 = document.getElementById('pw2').value;
-    if (pw.length < 6) { showMsg('Password must be at least 6 characters.', 'error'); return; }
-    if (pw !== pw2) { showMsg('Passwords do not match.', 'error'); return; }
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true; btn.textContent = 'Saving...';
-
-    try {
-      // Exchange token for session first
-      const sessionRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json',
-                   'Authorization': `Bearer ${accessToken}` },
-        body: JSON.stringify({ })
-      });
-
-      // Update password using the access token directly
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-        method: 'PUT',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ password: pw })
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById('formArea').style.display = 'none';
-        showMsg('Password updated! You can now sign in to ScanTag with your new password.', 'success');
-      } else {
-        btn.disabled = false; btn.textContent = 'Set New Password';
-        showMsg(data.msg || data.error_description || 'Something went wrong. Try requesting a new reset link.', 'error');
-      }
-    } catch (e) {
-      btn.disabled = false; btn.textContent = 'Set New Password';
-      showMsg('Network error. Check your connection and try again.', 'error');
-    }
-  }
-</script>
 </body>
 </html>
