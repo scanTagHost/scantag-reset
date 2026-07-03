@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /reset_password.html
+Disallow: /404.html
+Disallow: /README.me
+Disallow: /.nojekyll
+Disallow: /CNAME
+Disallow: /n/
+Disallow: /.well-known/
+
+Sitemap: https://scantag.info/sitemap.xml
