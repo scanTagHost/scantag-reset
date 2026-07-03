@@ -373,6 +373,62 @@
     color: var(--dim); font-size: 17px; margin-bottom: 36px;
   }
 
+  /* ── CONTACT ── */
+  .contact-bg {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+  }
+  .contact-wrap {
+    max-width: 620px; margin: 0 auto;
+  }
+  .contact-form {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-top: 40px;
+  }
+  .form-row {
+    display: flex; gap: 16px;
+  }
+  .form-field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .form-field label {
+    font-family: var(--font-head); font-size: 13px; font-weight: 500;
+    color: var(--white);
+  }
+  .form-field input,
+  .form-field textarea {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 15px;
+    font-family: var(--font-body); font-size: 15px;
+    color: var(--white);
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .form-field input::placeholder,
+  .form-field textarea::placeholder { color: var(--dim); opacity: 0.7; }
+  .form-field input:focus,
+  .form-field textarea:focus {
+    outline: none; border-color: var(--teal);
+  }
+  .form-field textarea { resize: vertical; min-height: 130px; line-height: 1.5; }
+  .contact-form button {
+    background: var(--teal); color: #0A1F1E;
+    font-family: var(--font-head); font-weight: 700; font-size: 16px;
+    padding: 16px; border: none; border-radius: 12px;
+    cursor: pointer; transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(58,190,183,0.25);
+  }
+  .contact-form button:hover { background: #4DD4CD; transform: translateY(-1px); }
+  .contact-alt {
+    text-align: center; margin-top: 20px;
+    font-size: 14px; color: var(--dim);
+  }
+  .contact-alt a { color: var(--teal); text-decoration: none; }
+  .contact-alt a:hover { text-decoration: underline; }
+  @media (max-width: 500px) {
+    .form-row { flex-direction: column; }
+  }
+
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border);
@@ -744,6 +800,38 @@
   </a>
 </div>
 
+<!-- CONTACT -->
+<div class="contact-bg" id="contact">
+  <section class="section contact-wrap">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">Questions? Feedback?</h2>
+    <p class="section-sub">Tell us what's on your mind — bug reports, feature ideas, or anything else. We read every message.</p>
+    <form class="contact-form" action="https://formsubmit.co/support@scantag.info" method="POST">
+      <!-- FormSubmit config -->
+      <input type="hidden" name="_subject" value="New ScanTag contact form message">
+      <input type="hidden" name="_captcha" value="true">
+      <input type="hidden" name="_template" value="table">
+      <input type="text" name="_honey" style="display:none">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="What would you like to tell us?" required></textarea>
+      </div>
+      <button type="submit">Send message</button>
+    </form>
+    <p class="contact-alt">Or email us directly at <a href="mailto:support@scantag.info">support@scantag.info</a></p>
+  </section>
+</div>
+
 <!-- FOOTER -->
 <div class="divider"></div>
 <footer>
@@ -751,7 +839,7 @@
   <div class="footer-links">
     <a href="/reset_password.html">Reset Password</a>
     <a href="https://play.google.com/store/apps/details?id=com.scantag.app" target="_blank" rel="noopener">Google Play</a>
-    <a href="mailto:support@scantag.info">Contact</a>
+    <a href="#contact">Contact</a>
   </div>
   <div class="footer-copy">© 2025 ScanTag. All rights reserved.</div>
 </footer>
